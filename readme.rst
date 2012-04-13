@@ -25,9 +25,13 @@ To list receipts::
 
   receipts -l
 
-To check a receipt::
+To check a receipt for a specific domain::
 
   receipts -c DOMAINNAME
+
+To check all domains::
+
+  receipts -c
 
 By default receipts will try and find your default Firefox profile. If not it
 will use one provided with -p, eg::

@@ -59,8 +59,10 @@ class Apps(object):
 
     def check(self, domain):
         for k, v in self.data.items():
-            if domain == self._get_domain(v['origin']):
-                print 'Checking receipt for domain: %s' % self._good(domain)
+            this_domain = self._get_domain(v['origin'])
+            if not domain or domain == this_domain:
+                print ('Checking receipt for domain: %s'
+                       % self._good(this_domain))
                 for receipt in v.get('receipts', []):
                     result = jwt.decode(receipt.encode('ascii'), verify=False)
                     verify = result['verify']
@@ -72,7 +74,7 @@ class Apps(object):
                         continue
                     res = json.loads(response.read())['status']
                     print 'Server returned: %s' % self._good(res)
-
+                print
 
 def main():
     parser = argparse.ArgumentParser()
