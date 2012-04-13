@@ -34,6 +34,12 @@ will use one provided with -p, eg::
 
   receipts -l -p fx6
 
+Screenshots
+----------------------------------
+
+http://cl.ly/0S2J1V3f123L1H3C3l1z
+http://cl.ly/2y220K1U3G322z26023v
+
 License
 ----------------------------------
 
