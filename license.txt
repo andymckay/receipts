@@ -1,0 +1,4 @@
+MIT
+
+PyJWT is by Michael Hanson and under the MIT license.
+
