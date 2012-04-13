@@ -70,8 +70,9 @@ class Apps(object):
                     except urllib2.URLError, error:
                         print 'Server returned: %s' % self._bad(error.code)
                         continue
-                    res = json.loads(response.content)['status']
+                    res = json.loads(response.read())['status']
                     print 'Server returned: %s' % self._good(res)
+
 
 def main():
     parser = argparse.ArgumentParser()
