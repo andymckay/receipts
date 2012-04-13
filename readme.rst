@@ -10,7 +10,7 @@ Tested on OS X, not sure about support for other operating systems yet.
 Install
 ---------------------------------
 
-Requirements: Python 2.7
+Requirements: Python 2.7 and Firefox 14
 
 To install::
 
