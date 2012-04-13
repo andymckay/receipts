@@ -80,7 +80,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-p', '--profile', nargs='?', default='default')
     parser.add_argument('-l', '--list', nargs='?', default=False)
-    parser.add_argument('-c', '--check', nargs='?')
+    parser.add_argument('-c', '--check', nargs='?', default=False)
     result = parser.parse_args()
     apps = Apps()
     for k in ['profile', 'list', 'check']:

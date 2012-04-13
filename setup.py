@@ -4,7 +4,7 @@ from setuptools import setup
 
 setup(
     name='receipts',
-    version='0.1.1',
+    version='0.1.2',
     description='Verify web app receipts',
     long_description=open('readme.rst').read(),
     author='Andy McKay',
