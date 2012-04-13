@@ -7,6 +7,7 @@ import urlparse
 import ConfigParser
 import jwt
 import urllib2
+from pprint import pprint
 
 
 directory = os.path.expanduser('~/Library/Application Support/Firefox')
@@ -61,7 +62,7 @@ class Apps(object):
         for k, v in self.data.items():
             this_domain = self._get_domain(v['origin'])
             if not domain or domain == this_domain:
-                print ('Checking receipt for domain: %s'
+                print ('Checking receipts for domain: %s'
                        % self._good(this_domain))
                 for receipt in v.get('receipts', []):
                     result = jwt.decode(receipt.encode('ascii'), verify=False)
@@ -76,14 +77,25 @@ class Apps(object):
                     print 'Server returned: %s' % self._good(res)
                 print
 
+    def expand(self, domain):
+        for k, v in self.data.items():
+            this_domain = self._get_domain(v['origin'])
+            if not domain or domain == this_domain:
+                print ('Expanding receipt for domain: %s'
+                       % self._good(this_domain))
+                pprint(v)
+                print
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-p', '--profile', nargs='?', default='default')
     parser.add_argument('-l', '--list', nargs='?', default=False)
+    parser.add_argument('-e', '--expand', nargs='?', default=False)
     parser.add_argument('-c', '--check', nargs='?', default=False)
     result = parser.parse_args()
     apps = Apps()
-    for k in ['profile', 'list', 'check']:
+    for k in ['profile', 'expand', 'list', 'check']:
         v = result.__dict__[k]
         if v is not False:
             getattr(apps, k)(v)

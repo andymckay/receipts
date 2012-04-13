@@ -33,6 +33,14 @@ To check all domains::
 
   receipts -c
 
+To expand a receipt for a specific domain::
+
+  receipts -e DOMAINNAME
+
+To expand all domains::
+
+  receipts -e
+
 By default receipts will try and find your default Firefox profile. If not it
 will use one provided with -p, eg::
 
