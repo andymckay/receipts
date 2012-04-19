@@ -83,8 +83,10 @@ class Apps(object):
             if not domain or domain == this_domain:
                 print ('Expanding receipt for domain: %s'
                        % self._good(this_domain))
+                receipts = v.pop('receipts')
                 pprint(v)
-                print
+                for r in receipts:
+                    pprint(jwt.decode(r.encode('ascii'), verify=False))
 
 
 def main():
