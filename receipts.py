@@ -86,7 +86,9 @@ class Apps(object):
                 receipts = v.pop('receipts')
                 pprint(v)
                 for r in receipts:
-                    pprint(jwt.decode(r.encode('ascii'), verify=False))
+                    cert, receipt = r.split('~')
+                    pprint(jwt.decode(cert.encode('ascii'), verify=False))
+                    pprint(jwt.decode(receipt.encode('ascii'), verify=False))
 
 
 def main():
