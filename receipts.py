@@ -64,12 +64,13 @@ class Apps(object):
             if not domain or domain == this_domain:
                 print ('Checking receipts for domain: %s'
                        % self._good(this_domain))
-                for receipt in v.get('receipts', []):
+                for r in v.get('receipts', []):
+                    cert, receipt = r.split('~')
                     result = jwt.decode(receipt.encode('ascii'), verify=False)
                     verify = result['verify']
                     print 'Verifying at: %s' % self._get_domain(verify)
                     try:
-                        response = urllib2.urlopen(result['verify'], receipt)
+                        response = urllib2.urlopen(result['verify'], r)
                     except urllib2.URLError, error:
                         print 'Server returned: %s' % self._bad(error.code)
                         continue
