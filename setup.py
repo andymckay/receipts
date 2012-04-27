@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='receipts',
-    version='0.2',
+    version='0.2.1',
     description='Verify web app receipts',
     long_description=open('readme.rst').read(),
     author='Andy McKay',

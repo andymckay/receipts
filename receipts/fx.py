@@ -86,9 +86,9 @@ class Firefox(object):
                 for r in i.receipts:
                     if r.cert:
                         print self._good('Certificate data')
-                        pprint(r.cert_decoded)
+                        pprint(r.cert_decoded())
                     print self._good('Receipt data')
-                    pprint(r.receipt_decoded)
+                    pprint(r.receipt_decoded())
                 print
 
 

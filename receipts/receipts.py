@@ -41,7 +41,7 @@ class Receipt(object):
 
     def verify_server(self):
         try:
-            response = requests.post(self.verifier, self.receipt)
+            response = requests.post(self.verifier, self.full)
         except RequestException, error:
             raise VerificationError(error)
         return json.loads(response.text)
