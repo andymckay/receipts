@@ -1,9 +1,4 @@
-.. receipts documentation master file, created by
-   sphinx-quickstart on Fri Apr 27 10:08:34 2012.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
-Welcome to receipts's documentation!
+Receipt documentation
 ====================================
 
 Contents:
@@ -11,7 +6,26 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
+   fx.rst
+   lib.rst
 
+Install
+-------
+
+Requires Python 2.7 and pip::
+
+        pip install receipts
+
+Dependencies that will be installed:
+
+* requests
+* PyBrowserID
+* pyjwt
+
+License
+----------------------------------
+
+MIT
 
 Indices and tables
 ==================

@@ -1,11 +1,13 @@
-Receipts
---------------------------------
+Receipt Library
+===============
 
-Parsing of web app receipts in Python.
+Note: this API is just being built and is liable to change.
 
-Includes a desktop client that will allow to parse my Firefox web apps.
+Receipt object
+--------------
 
-Example Python api::
+Allows you to inspect a receipt. In the following I snipped the receipt string
+because it's really long::
 
         >>> from receipts.receipts import Receipt
         >>> receipt = Receipt("eyJh....")
@@ -16,4 +18,4 @@ Example Python api::
         >>> receipt.verify_crypto()
         True
 
-For more see our docs on: http://readthedocs.org/docs/receipts/en/latest/
+More to come.
