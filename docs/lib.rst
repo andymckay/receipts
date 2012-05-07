@@ -18,4 +18,9 @@ because it's really long::
         >>> receipt.verify_crypto()
         True
 
-More to come.
+* `verify_server`: will send the receipt to the URL specified in the receipt
+  for verification and return its result.
+
+* `verify_crypto`: this requires PyBrowserID to be installed. This is optional
+  and is not installed in the setup due to its dependencies. If you don't have
+  this installed: `MissingPyBrowserId` is raised.

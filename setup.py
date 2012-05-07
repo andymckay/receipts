@@ -2,13 +2,13 @@ from setuptools import setup, find_packages
 
 setup(
     name='receipts',
-    version='0.2.1',
+    version='0.2.2',
     description='Verify web app receipts',
     long_description=open('readme.rst').read(),
     author='Andy McKay',
     author_email='andym@mozilla.com',
     license='BSD',
-    install_requires=['pyjwt', 'requests', 'PyBrowserID'],
+    install_requires=['pyjwt', 'requests'],
     py_modules=['receipts'],
     entry_points={
         'console_scripts': [

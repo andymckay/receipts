@@ -1,5 +1,6 @@
 import argparse
 import ConfigParser
+from datetime import date
 from gettext import ngettext
 import json
 from pprint import pprint
@@ -7,7 +8,7 @@ import os
 import sys
 import warnings
 
-from receipts import Install, VerificationError
+from receipts import Install, MissingPyBrowserId, VerificationError
 
 
 directory = os.path.expanduser('~/Library/Application Support/Firefox')
@@ -54,6 +55,9 @@ class Firefox(object):
             rcs = len(i.receipts)
             receipt_text = ngettext('1 receipt', '%s receipts' % rcs, rcs)
             print u'%s: %s' % (self._good(i.origin), receipt_text)
+            for r in i.receipts:
+                f = lambda x: date.fromtimestamp(x).strftime('%d %B %y')
+                print u'    Issued: %s, expires %s' % (f(r.issue), f(r.expiry))
 
     def check(self, domain):
         for i in self.installs:
@@ -71,6 +75,8 @@ class Firefox(object):
                         res = r.verify_crypto()
                     except VerificationError, error:
                         print 'Validity error: %s' % self._bad(error)
+                    except MissingPyBrowserId, error:
+                        continue
                     else:
                         states = {True: self._good('good'),
                                   False: self._bad('bad')}

@@ -11,10 +11,18 @@ import urlparse
 import requests
 from requests.exceptions import RequestException
 
-import certs
+try:
+    import certs
+    CERTS = True
+except ImportError:
+    CERTS = False
 
 
 class VerificationError(Exception):
+    pass
+
+
+class MissingPyBrowserId(Exception):
     pass
 
 
@@ -24,6 +32,7 @@ class Receipt(object):
         self.receipt = ''
         self.cert = ''
         self.full = data
+        self.decoded = {}
         if '~' in data:
             self.cert, self.receipt = data.split('~')
         else:
@@ -33,11 +42,22 @@ class Receipt(object):
         return jwt.decode(self.cert.encode('ascii'), verify=False)
 
     def receipt_decoded(self):
-        return jwt.decode(self.receipt.encode('ascii'), verify=False)
+        if not self.decoded:
+            self.decoded = jwt.decode(self.receipt.encode('ascii'),
+                                      verify=False)
+        return self.decoded
 
     @property
     def verifier(self):
         return self.receipt_decoded()['verify']
+
+    @property
+    def issue(self):
+        return self.receipt_decoded()['iat']
+
+    @property
+    def expiry(self):
+        return self.receipt_decoded()['exp']
 
     def verify_server(self):
         try:
@@ -47,6 +67,9 @@ class Receipt(object):
         return json.loads(response.text)
 
     def verify_crypto(self):
+        if not CERTS:
+            raise MissingPyBrowserId('Requires optional dependency: '
+                                     'pip install PyBrowserID')
         try:
             return certs.ReceiptVerifier().verify(self.full)
         except Exception, error:
