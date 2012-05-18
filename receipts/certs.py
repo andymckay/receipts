@@ -106,7 +106,6 @@ class ReceiptVerifier(local.LocalVerifier):
         """
         if now is None:
             now = int(time.time())
-
         # This catches KeyError and turns it into ValueError.
         # It saves having to test for the existence of individual
         # items in the various payloads.
@@ -135,7 +134,10 @@ class ReceiptVerifier(local.LocalVerifier):
         return True
 
     def check_token_signature(self, data, cert):
-        return data.check_signature(cert.payload["jwk"][0])
+        if isinstance(cert.payload['jwk'], dict):
+            return cert.payload['jwk']['jwk'][0]
+        else:
+            return cert.payload["jwk"][0]
 
     def verify_certificate_chain(self, certificates, now=None):
         """Verify a signed chain of certificates.
@@ -162,7 +164,10 @@ class ReceiptVerifier(local.LocalVerifier):
             if not cert.check_signature(current_key):
                 raise InvalidSignatureError("bad signature in chain by: '%s'"
                                             % current_key['kid'])
-            current_key = cert.payload["jwk"][0]
+            if isinstance(cert.payload['jwk'], dict):
+                current_key = cert.payload['jwk']['jwk'][0]
+            else:
+                current_key = cert.payload["jwk"][0]
         return cert
 
 #
