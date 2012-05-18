@@ -1,4 +1,6 @@
 # This is copied from https://github.com/rtilder/trunion/
+import sys
+
 import browserid
 import browserid.certificates
 import browserid.jwt
@@ -126,7 +128,9 @@ class ReceiptVerifier(local.LocalVerifier):
             if not self.check_token_signature(assertion, cert):
                 raise InvalidSignatureError("invalid signature on assertion")
         except KeyError:
-            raise ValueError("Malformed JWT")
+            etype, val, tb = sys.exc_info()
+            msg = "Malformed JWT: %s: %s" % (etype.__class__.__name__, val)
+            raise ValueError(msg), None, tb
         # Looks good!
         return True
 
