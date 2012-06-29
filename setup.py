@@ -8,7 +8,7 @@ setup(
     author='Andy McKay',
     author_email='andym@mozilla.com',
     license='BSD',
-    install_requires=['pyjwt', 'requests'],
+    install_requires=['pyjwt', 'requests', 'argparse'],
     py_modules=['receipts'],
     entry_points={
         'console_scripts': [
