@@ -67,6 +67,8 @@ class Firefox(object):
                     print 'Verifying at: %s' % r.verifier
                     try:
                         res = r.verify_server()['status']
+                    except ValueError, error:
+                        print 'Server error: %s' % self._bad(error)
                     except VerificationError, error:
                         print 'Server error: %s' % self._bad(error)
                     else:
