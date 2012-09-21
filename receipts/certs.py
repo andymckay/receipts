@@ -19,7 +19,7 @@ import time
 import json
 
 
-def fetch_public_key(url, *args):
+def fetch_public_key(url, *args, **kwargs):
     """Fetch the public key from the given URL."""
     # Try to find the public key.  If it can't be found then we
     # raise an InvalidIssuerError.  Any other connection-related
