@@ -58,4 +58,6 @@ Then add in the argument::
   --adb
 
 To any of the above commands and instead of looking at Firefox, it will pull
-the receipts file off your phone and examine that instead.
+the receipts file off your phone and examine that instead. For example::
+
+  receipts --adb --list
