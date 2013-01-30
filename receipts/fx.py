@@ -6,12 +6,14 @@ import json
 from pprint import pprint
 import os
 import sys
+import tempfile
 import warnings
 
 from receipts import Install, MissingPyBrowserId, VerificationError
 
 
 directory = os.path.expanduser('~/Library/Application Support/Firefox')
+b2groot = '/data/local/'
 ini = os.path.join(directory, 'profiles.ini')
 filename = 'webapps/webapps.json'
 
@@ -100,6 +102,27 @@ class Firefox(object):
                 print
 
 
+class B2G(Firefox):
+
+    def _copy(self, name, dest):
+        print 'Copying file from device:', name
+        src = '/'.join([b2groot, name])
+        dest = os.path.join(dest, name)
+        os.system('adb pull %s %s' % (src, dest))
+        return dest
+
+    def profile(self, profile):
+        dest = tempfile.mkdtemp()
+        self.path = self._copy(filename, dest)
+        if not self.path or not os.path.exists(self.path):
+            print 'No webapps.json found.'
+            sys.exit(1)
+
+        for k, v in json.loads(open(self.path).read()).items():
+            if 'receipts' in v:
+                self.installs.append(Install(v))
+
+
 def main():
     warnings.filterwarnings("ignore", category=FutureWarning)
     parser = argparse.ArgumentParser()
@@ -107,8 +130,12 @@ def main():
     parser.add_argument('-l', '--list', nargs='?', default=False)
     parser.add_argument('-e', '--expand', nargs='?', default=False)
     parser.add_argument('-c', '--check', nargs='?', default=False)
+    parser.add_argument('-a', '--adb', nargs='?', default=False)
     result = parser.parse_args()
-    apps = Firefox()
+    if result.adb is not False:
+        apps = B2G()
+    else:
+        apps = Firefox()
     for k in ['profile', 'expand', 'list', 'check']:
         v = result.__dict__[k]
         if v is not False:

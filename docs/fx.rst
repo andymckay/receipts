@@ -42,3 +42,20 @@ will use one provided with -p, eg::
 Example:
 
 .. image:: fx.png
+
+Phone
+~~~~~
+
+If you've got a B2G phone you can check the receipts on your phone. This
+assumes that receipts are installed at::
+
+  /data/local/webapps/webapps.json
+
+Connect your phone to the USB cable and ensure that you've got access to adb.
+
+Then add in the argument::
+
+  --adb
+
+To any of the above commands and instead of looking at Firefox, it will pull
+the receipts file off your phone and examine that instead.
