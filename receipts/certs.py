@@ -1,5 +1,6 @@
 # This is copied from https://github.com/rtilder/trunion/
 import sys
+import urlparse
 
 import browserid
 import browserid.certificates
@@ -43,7 +44,7 @@ def fetch_public_key(url, *args, **kwargs):
 def _get(url):
     """Fetch resource with requests."""
     try:
-        return requests.get(url)
+        return requests.get(url, verify=True)
     except RequestException, e:
         msg = "Impossible to get %s. Reason: %s" % (url, str(e))
         raise ConnectionError(msg)
@@ -98,6 +99,10 @@ class ReceiptJWT(browserid.jwt.JWT):
 
 class ReceiptVerifier(local.LocalVerifier):
 
+    def __init__(self, valid_issuers=None, *args, **kw):
+        self.valid_issuers = valid_issuers or []
+        super(ReceiptVerifier, self).__init__(*args, **kw)
+
     def parse_jwt(self, data):
         return parse_jwt(data)
 
@@ -134,6 +139,12 @@ class ReceiptVerifier(local.LocalVerifier):
         # Looks good!
         return True
 
+    def check_certificate_issuer(self, issuer):
+        domain = urlparse.urlparse(issuer).netloc
+        if domain and domain in self.valid_issuers:
+            return True
+        raise ValueError('Certificate issuer invalid: %s' % domain)
+
     def check_token_signature(self, data, cert):
         return data.check_signature(cert.payload["jwk"][0])
 
@@ -151,7 +162,10 @@ class ReceiptVerifier(local.LocalVerifier):
             raise ValueError("chain must have at least one certificate")
         if now is None:
             now = int(time.time())
+
         root_issuer = certificates[0].payload["iss"]
+        self.check_certificate_issuer(root_issuer)
+
         root_key = self.certs[root_issuer]
         current_key = root_key
         for cert in certificates:

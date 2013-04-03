@@ -43,6 +43,10 @@ Example:
 
 .. image:: fx.png
 
+Currently the receipts script uses `fx.py` script, that enforces that for
+cyrpotgraphic verification the receipt must come from one of the Mozilla
+sources.
+
 Phone
 ~~~~~
 

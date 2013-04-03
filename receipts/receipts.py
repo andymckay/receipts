@@ -61,17 +61,19 @@ class Receipt(object):
 
     def verify_server(self):
         try:
-            response = requests.post(self.verifier, self.full)
+            response = requests.post(self.verifier, self.full,
+                                     verify=True)
         except RequestException, error:
             raise VerificationError(error)
         return json.loads(response.text)
 
-    def verify_crypto(self):
+    def verify_crypto(self, valid_issuers=None):
         if not CERTS:
             raise MissingPyBrowserId('Requires optional dependency: '
                                      'pip install PyBrowserID')
         try:
-            return certs.ReceiptVerifier().verify(self.full)
+            return (certs.ReceiptVerifier(valid_issuers=valid_issuers)
+                         .verify(self.full))
         except Exception, error:
             raise VerificationError(error)
 
