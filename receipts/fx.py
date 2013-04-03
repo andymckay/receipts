@@ -17,6 +17,11 @@ b2groot = '/data/local/'
 ini = os.path.join(directory, 'profiles.ini')
 filename = 'webapps/webapps.json'
 
+valid_issuers = [
+    'marketplace-dev-cdn.allizom.org',
+    'marketplace.cdn.mozilla.net',
+]
+
 
 class Firefox(object):
     GREEN = "\033[1m\033[92m"
@@ -76,7 +81,7 @@ class Firefox(object):
                     else:
                         print 'Server returned: %s' % self._good(res)
                     try:
-                        res = r.verify_crypto()
+                        res = r.verify_crypto(valid_issuers=valid_issuers)
                     except VerificationError, error:
                         print 'Validity error: %s' % self._bad(error)
                     except MissingPyBrowserId, error:
