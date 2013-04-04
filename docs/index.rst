@@ -29,7 +29,7 @@ This is required for the crypto verficition check of the receipt. The
 verification server will do this for you, but you can optionally do it
 yourself. To install this::
 
-    pip install PyBrowserID
+    pip install PyBrowserID==0.6
 
 Changes:
 
