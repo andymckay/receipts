@@ -141,7 +141,7 @@ def main():
         apps = B2G()
     else:
         apps = Firefox()
-    for k in ['profile', 'expand', 'list', 'check', 'anyissuer']:
+    for k in ['profile', 'expand', 'list', 'check']:
         v = result.__dict__[k]
         if v is not False:
             getattr(apps, k)(v)
