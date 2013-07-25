@@ -85,7 +85,8 @@ class Install(object):
         self.receipts = []
         for r in self.data.get('receipts', []):
             self.receipts.append(Receipt(r))
-        del self.data['receipts']
+        if 'receipts' in self.data:
+            del self.data['receipts']
 
     @property
     def origin(self):

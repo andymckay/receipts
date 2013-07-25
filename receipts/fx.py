@@ -15,7 +15,7 @@ from receipts import Install, MissingPyBrowserId, VerificationError
 directory = os.path.expanduser('~/Library/Application Support/Firefox')
 b2groot = '/data/local/'
 ini = os.path.join(directory, 'profiles.ini')
-filename = 'webapps/webapps.json'
+
 
 valid_issuers = [
     'marketplace-dev-cdn.allizom.org',
@@ -26,7 +26,9 @@ valid_issuers = [
 class Firefox(object):
     GREEN = "\033[1m\033[92m"
     RED = '\033[1m\033[91m'
+    CYAN = '\033[1m\033[36m'
     RESET = "\x1B[m"
+    filename = 'webapps/webapps.json'
 
     def __init__(self):
         self.data = None
@@ -47,7 +49,7 @@ class Firefox(object):
                 config.get(section, 'Name') == profile):
                 self.path = os.path.join(directory,
                                          config.get(section, 'Path'),
-                                         filename)
+                                         self.filename)
                 break
 
         if not self.path or not os.path.exists(self.path):
@@ -69,7 +71,12 @@ class Firefox(object):
     def check(self, domain):
         for i in self.installs:
             if not domain or domain == i.origin:
-                print 'Checking receipts for domain: %s' % self._good(i.origin)
+                if i.receipts:
+                    print ('%sChecking %s receipt(s) for app:%s %s' %
+                           (self.CYAN, len(i.receipts), self.RESET,
+                            self._good(i.origin)))
+                else:
+                    print 'No receipts for app: %s' % self._good(i.origin)
                 for r in i.receipts:
                     print 'Verifying at: %s' % r.verifier
                     try:
@@ -90,7 +97,7 @@ class Firefox(object):
                         states = {True: self._good('good'),
                                   False: self._bad('bad')}
                         print 'Validity check: %s' % states[res]
-                print
+                    print
 
     def expand(self, domain):
         for i in self.installs:
@@ -108,6 +115,7 @@ class Firefox(object):
 
 
 class B2G(Firefox):
+    filename = 'webapps/webapps.json'
 
     def _copy(self, name, dest):
         print 'Copying file from device:', name
@@ -118,7 +126,7 @@ class B2G(Firefox):
 
     def profile(self, profile):
         dest = tempfile.mkdtemp()
-        self.path = self._copy(filename, dest)
+        self.path = self._copy(self.filename, dest)
         if not self.path or not os.path.exists(self.path):
             print 'No webapps.json found.'
             sys.exit(1)
@@ -128,23 +136,45 @@ class B2G(Firefox):
                 self.installs.append(Install(v))
 
 
+class Simulator(Firefox):
+    filename = 'extensions/r2d2b2g@mozilla.org/profile/webapps/webapps.json'
+
+
 def main():
     warnings.filterwarnings("ignore", category=FutureWarning)
     parser = argparse.ArgumentParser()
-    parser.add_argument('-p', '--profile', nargs='?', default='default')
-    parser.add_argument('-l', '--list', nargs='?', default=False)
-    parser.add_argument('-e', '--expand', nargs='?', default=False)
-    parser.add_argument('-c', '--check', nargs='?', default=False)
-    parser.add_argument('-a', '--adb', nargs='?', default=False)
+    parser.add_argument('-p', '--profile', default='default')
+    parser.add_argument('-l', '--list', default=False, action='store_true')
+    parser.add_argument('-e', '--expand', default=False, action='store_true')
+    parser.add_argument('-c', '--check', default=False, action='store_true')
+    parser.add_argument('-a', '--adb', default=False, action='store_true')
+    parser.add_argument('-s', '--simulator', default=False,
+        action='store_true')
+    parser.add_argument('-d', '--domains', nargs='?', default=False)
     result = parser.parse_args()
-    if result.adb is not False:
+
+    if all([result.simulator, result.adb]):
+        print 'Cannot specify both simulator and adb.'
+        sys.exit(1)
+
+    if result.simulator:
+        print 'Checking Firefox OS simulator.'
+        apps = Simulator()
+    elif result.adb:
+        print 'Checking device via adb.'
         apps = B2G()
     else:
+        print 'Checking Firefox.'
         apps = Firefox()
-    for k in ['profile', 'expand', 'list', 'check']:
+
+    if set([result.list, result.expand, result.check]) == set([False]):
+        result.list = True
+
+    apps.profile(result.profile)
+    for k in ['expand', 'list', 'check']:
         v = result.__dict__[k]
-        if v is not False:
-            getattr(apps, k)(v)
+        if v:
+            getattr(apps, k)(result.domains)
 
 
 if __name__=='__main__':

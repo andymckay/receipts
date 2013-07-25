@@ -20,7 +20,7 @@ To check a receipt for a specific domain. This will check the receipt against
 the server and check that it is cryptographically correct. These are two
 different steps::
 
-  receipts -c DOMAINNAME
+  receipts -c -d DOMAINNAME
 
 To check all domains::
 
@@ -28,7 +28,7 @@ To check all domains::
 
 To expand a receipt for a specific domain::
 
-  receipts -e DOMAINNAME
+  receipts -e -d DOMAINNAME
 
 To expand all domains::
 
@@ -57,11 +57,21 @@ assumes that receipts are installed at::
 
 Connect your phone to the USB cable and ensure that you've got access to adb.
 
-Then add in the argument::
+Then add in the argument `adb` or `a`. To any of the above commands and
+instead of looking at Firefox, it will pull the receipts file off your phone
+and examine that instead. For example::
 
-  --adb
+  receipts -a --list
 
-To any of the above commands and instead of looking at Firefox, it will pull
-the receipts file off your phone and examine that instead. For example::
+Simulator
+~~~~~~~~~
 
-  receipts --adb --list
+If you've got the Firefox OS Simulator installed you can you check receipts by
+adding the argument `simulator` or `s`.
+
+To any of the above commands and instead of looking at Firefox, it will check
+with the simulator. For example::
+
+  receipts -s --list
+
+If you specify `s` and `a` an error will be raised.
