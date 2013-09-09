@@ -51,6 +51,7 @@ class Receipt(object):
     def verifier(self):
         return self.receipt_decoded()['verify']
 
+
     @property
     def issue(self):
         return self.receipt_decoded()['iat']
