@@ -113,6 +113,13 @@ class Firefox(object):
                     pprint(r.receipt_decoded())
                 print
 
+    def dump(self, domain):
+        for i in self.installs:
+            if not domain or domain == i.origin:
+                print 'Dumping receipt for domain: %s' % self._good(i.origin)
+                for r in i.receipts:
+                    print r.full
+
 
 class B2G(Firefox):
     filename = 'webapps/webapps.json'
@@ -148,6 +155,7 @@ def main():
     parser.add_argument('-e', '--expand', default=False, action='store_true')
     parser.add_argument('-c', '--check', default=False, action='store_true')
     parser.add_argument('-a', '--adb', default=False, action='store_true')
+    parser.add_argument('-D', '--dump', default=False, action='store_true')
     parser.add_argument('-s', '--simulator', default=False,
         action='store_true')
     parser.add_argument('-d', '--domains', nargs='?', default=False)
@@ -171,7 +179,7 @@ def main():
         result.list = True
 
     apps.profile(result.profile)
-    for k in ['expand', 'list', 'check']:
+    for k in ['expand', 'list', 'check', 'dump']:
         v = result.__dict__[k]
         if v:
             getattr(apps, k)(result.domains)

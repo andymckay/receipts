@@ -34,6 +34,10 @@ To expand all domains::
 
   receipts -e
 
+To dump a raw receipt::
+
+  receipts -D
+
 By default receipts will try and find your default Firefox profile. If not it
 will use one provided with -p, eg::
 
