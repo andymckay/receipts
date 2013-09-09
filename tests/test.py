@@ -5,6 +5,7 @@ from unittest import TestCase
 import jwt
 import mock
 
+from browserid.errors import ExpiredSignatureError
 from nose.tools import eq_, ok_
 from receipts import certs
 from receipts.receipts import Install, Receipt, VerificationError
@@ -120,6 +121,42 @@ class TestVerified(TestCase):
                 self.combine(self.get_cert(), self.get_receipt(exp=1))
             )
 
+    def test_certificate_issuer(self):
+        self.verifier = certs.ReceiptVerifier(valid_issuers='f.c')
+        ok_(self.verifier.check_certificate_issuer, 'http://f.c')
+
+    def test_not_certificate_issuer(self):
+        self.verifier = certs.ReceiptVerifier(valid_issuers='f.c')
+        ok_(self.verifier.check_certificate_issuer, 'http://f.b')
+
+    def test_chain_empty(self):
+        self.verifier = certs.ReceiptVerifier(valid_issuers='f.c')
+        self.failUnlessRaises(ValueError,
+                self.verifier.verify_certificate_chain,
+                None
+            )
+
+    def test_chain(self):
+        self.verifier = certs.ReceiptVerifier(valid_issuers='f.c')
+        self.verifier.certs = {'http://f.c': {
+            'jwk': [{'alg': 'RSA', 'exp':'AQAB', 'mod': 'AQAB'}]
+        }}
+        cert = mock.Mock()
+        cert.payload = {'iss': 'http://f.c', 'exp': time() + 100,
+                        'jwk': [cert]}
+        ok_(self.verifier.verify_certificate_chain([cert]))
+
+    def test_chain_expired(self):
+        self.verifier = certs.ReceiptVerifier(valid_issuers='f.c')
+        self.verifier.certs = {'http://f.c': {
+            'jwk': [{'alg': 'RSA', 'exp':'AQAB', 'mod': 'AQAB'}]
+        }}
+        cert = mock.Mock()
+        cert.payload = {'iss': 'http://f.c', 'exp': time() - 100,
+                        'jwk': [cert]}
+        self.failUnlessRaises(ExpiredSignatureError,
+                              self.verifier.verify_certificate_chain,
+                              [cert])
 
     @mock.patch('receipts.certs.ReceiptJWT.check_signature')
     @mock.patch('receipts.certs.ReceiptVerifier.verify_certificate_chain')
