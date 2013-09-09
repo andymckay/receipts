@@ -169,6 +169,7 @@ class ReceiptVerifier(local.LocalVerifier):
         root_key = self.certs[root_issuer]
         current_key = root_key
         for cert in certificates:
+            print cert.payload
             if cert.payload["exp"] < now:
                 raise ExpiredSignatureError("expired certificate in "
                                             "chain: %s < %s" %

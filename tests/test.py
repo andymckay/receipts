@@ -1,12 +1,15 @@
 import json
+from time import time
 from unittest import TestCase
 
 import jwt
 import mock
 
+from browserid.errors import ExpiredSignatureError
 from nose.tools import eq_, ok_
 from receipts import certs
 from receipts.receipts import Receipt, Install, VerificationError
+from samples import expired
 
 
 class FakeResponse():
@@ -14,6 +17,7 @@ class FakeResponse():
     def __init__(self, text, status_code=200):
         self.text = text
         self.status_code = status_code
+
 
 
 class TestReceipt(TestCase):
@@ -40,8 +44,7 @@ class TestReceipt(TestCase):
     def test_verify_fails(self, post):
         post.side_effect = VerificationError
         r = Receipt(self.receipt)
-        with self.assertRaises(VerificationError):
-            r.verify_server()
+        self.failUnlessRaises(VerificationError, r.verify_server)
 
     @mock.patch('receipts.certs.ReceiptVerifier')
     def test_crypto(self, rv):
@@ -50,8 +53,14 @@ class TestReceipt(TestCase):
 
     def test_crypto_fails(self):
         r = Receipt('{0}~{1}'.format(self.cert, self.receipt))
-        with self.assertRaises(VerificationError):
-            r.verify_crypto()
+        self.failUnlessRaises(VerificationError, r.verify_crypto)
+
+    @mock.patch('receipts.receipts.certs')
+    def test_no_browserid(self, certs):
+        certs = False
+        r = Receipt('{0}~{1}'.format(self.cert, self.receipt))
+        ok_(r.verify_crypto())
+
 
 
 class TestInstall(TestCase):
@@ -77,8 +86,10 @@ class TestUtils(TestCase):
     @mock.patch('receipts.certs._get')
     def test_error(self, _get):
         _get.return_value = FakeResponse('')
-        with self.assertRaises(certs.InvalidIssuerError):
-            ok_(certs.fetch_public_key('http://f.c'))
+        self.failUnlessRaises(certs.InvalidIssuerError,
+                certs.fetch_public_key,
+                'http://f.c'
+            )
 
     def test_parse(self):
         res = certs.parse_jwt(jwt.encode(self.jwk, 'key'))
@@ -90,11 +101,42 @@ class TestUtils(TestCase):
 
     def test_sig(self):
         res = certs.parse_jwt(jwt.encode(self.jwk, 'key'))
-        with self.assertRaises(ValueError):
-            # Not sure why, but HS256 is not valid.
-            ok_(not res.check_signature({'alg': 'HS256', 'exp': 'AQAB',
-                                         'mod': 'AQAB'}))
+        self.failUnlessRaises(ValueError, res.check_signature,
+            {'alg': 'HS256', 'exp': 'AQAB', 'mod': 'AQAB'})
 
 
 class TestVerified(TestCase):
 
+    def get_receipt(self, **kw):
+        data = {'verify': 'y', 'iat': 1, 'exp': time() + 100}
+        data.update(**kw)
+        print data
+        return jwt.encode(data, 'key')
+
+    def get_cert(self, **kw):
+        data = {'cert': 'key', 'iss': 'http://f.c', 'exp': 'AQAB'}
+        data.update(**kw)
+        return jwt.encode(data, 'key')
+
+    def combine(self, cert, receipt):
+        return '%s~%s' % (cert, receipt)
+
+    def test_expired(self):
+        self.verifier = certs.ReceiptVerifier()
+        self.failUnlessRaises(certs.ExpiredSignatureError,
+                self.verifier.verify,
+                self.combine(self.get_cert(), self.get_receipt(exp=1))
+            )
+
+
+    @mock.patch('receipts.certs.ReceiptJWT.check_signature')
+    @mock.patch('receipts.certs.ReceiptVerifier.verify_certificate_chain')
+    def test_pass(self, verify_certificate_chain, check_signature):
+        check_signature.return_value = True
+        self.verifier = certs.ReceiptVerifier(valid_issuers='f.c')
+        self.verifier.certs = {'http://f.c': {
+            'jwk': [{'alg': 'RSA', 'exp':'AQAB', 'mod': 'AQAB'}]
+            }
+        }
+        self.verifier.verify(self.combine(self.get_cert(),
+                             self.get_receipt()))
