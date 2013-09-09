@@ -1,0 +1,5 @@
+pyjwt
+requests
+argparse
+PyBrowserID==0.6
+mock

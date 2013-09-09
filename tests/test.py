@@ -5,13 +5,15 @@ import jwt
 import mock
 
 from nose.tools import eq_, ok_
+from receipts import certs
 from receipts.receipts import Receipt, Install, VerificationError
 
 
 class FakeResponse():
 
-    def __init__(self, text):
+    def __init__(self, text, status_code=200):
         self.text = text
+        self.status_code = status_code
 
 
 class TestReceipt(TestCase):
@@ -53,13 +55,46 @@ class TestReceipt(TestCase):
 
 
 class TestInstall(TestCase):
-    one = jwt.encode({}, 'key'),
-    two = jwt.encode({}, 'key')
+    receipt = jwt.encode({}, 'key')
 
     def test_some(self):
-        install = Install({'receipts': [self.one, self.two]})
+        install = Install({'receipts': [self.receipt, self.receipt]})
         eq_(len(install.receipts), 2)
 
     def test_origin(self):
-        install = Install({'receipts': [self.one], 'origin': 'http://f.c'})
+        install = Install({'receipts': [self.receipt], 'origin': 'http://f.c'})
         eq_(install.origin, 'f.c')
+
+
+class TestUtils(TestCase):
+    jwk = {'jwk': [{'alg': 'RSA'}]}
+
+    @mock.patch('receipts.certs._get')
+    def test_fetch(self, _get):
+        _get.return_value = FakeResponse(json.dumps(self.jwk))
+        ok_(certs.fetch_public_key('http://f.c'))
+
+    @mock.patch('receipts.certs._get')
+    def test_error(self, _get):
+        _get.return_value = FakeResponse('')
+        with self.assertRaises(certs.InvalidIssuerError):
+            ok_(certs.fetch_public_key('http://f.c'))
+
+    def test_parse(self):
+        res = certs.parse_jwt(jwt.encode(self.jwk, 'key'))
+        ok_(isinstance(res, certs.ReceiptJWT))
+
+    def test_not_sig(self):
+        res = certs.parse_jwt(jwt.encode(self.jwk, 'key'))
+        ok_(not res.check_signature(self.jwk['jwk'][0]))
+
+    def test_sig(self):
+        res = certs.parse_jwt(jwt.encode(self.jwk, 'key'))
+        with self.assertRaises(ValueError):
+            # Not sure why, but HS256 is not valid.
+            ok_(not res.check_signature({'alg': 'HS256', 'exp': 'AQAB',
+                                         'mod': 'AQAB'}))
+
+
+class TestVerified(TestCase):
+
