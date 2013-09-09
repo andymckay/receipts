@@ -5,11 +5,9 @@ from unittest import TestCase
 import jwt
 import mock
 
-from browserid.errors import ExpiredSignatureError
 from nose.tools import eq_, ok_
 from receipts import certs
-from receipts.receipts import Receipt, Install, VerificationError
-from samples import expired
+from receipts.receipts import Install, Receipt, VerificationError
 
 
 class FakeResponse():
@@ -54,12 +52,6 @@ class TestReceipt(TestCase):
     def test_crypto_fails(self):
         r = Receipt('{0}~{1}'.format(self.cert, self.receipt))
         self.failUnlessRaises(VerificationError, r.verify_crypto)
-
-    @mock.patch('receipts.receipts.certs')
-    def test_no_browserid(self, certs):
-        certs = False
-        r = Receipt('{0}~{1}'.format(self.cert, self.receipt))
-        ok_(r.verify_crypto())
 
 
 
