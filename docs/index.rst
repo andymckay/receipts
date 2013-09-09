@@ -33,6 +33,10 @@ yourself. To install this::
 
 Changes:
 
+* 0.2.8
+
+  Add in the dump command and test coverage for the certs and receipts part.
+
 * 0.2.2
 
   Make PyBrowserID and hence M2Crypto optional. Add in issue and expiry dates
