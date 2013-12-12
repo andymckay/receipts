@@ -19,7 +19,7 @@ Requires Python 2.7 and pip::
 Dependencies that will be installed:
 
 * requests
-* pyjwt
+* pyjwt-mozilla
 
 Optional dependency:
 
