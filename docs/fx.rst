@@ -79,3 +79,10 @@ with the simulator. For example::
   receipts -s --list
 
 If you specify `s` and `a` an error will be raised.
+
+File
+~~~~
+
+To read a receipt from a file, just pass the `-f` argument. For example::
+
+  receipts -f /tmp/receipt.txt

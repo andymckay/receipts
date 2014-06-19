@@ -90,4 +90,5 @@ class Install(object):
 
     @property
     def origin(self):
-        return urlparse.urlparse(self.data['origin'])[1]
+        parsed = urlparse.urlparse(self.data['origin'])
+        return parsed.netloc or parsed.path

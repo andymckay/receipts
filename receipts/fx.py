@@ -147,6 +147,15 @@ class Simulator(Firefox):
     filename = 'extensions/r2d2b2g@mozilla.org/profile/webapps/webapps.json'
 
 
+class File(Firefox):
+
+    def profile(self, profile):
+        self.installs.append(Install({
+                'receipts': [open(self.filename, 'r').read()],
+                'origin': 'file://{0}'.format(self.filename)
+            }))
+
+
 def main():
     warnings.filterwarnings("ignore", category=FutureWarning)
     parser = argparse.ArgumentParser()
@@ -155,6 +164,7 @@ def main():
     parser.add_argument('-e', '--expand', default=False, action='store_true')
     parser.add_argument('-c', '--check', default=False, action='store_true')
     parser.add_argument('-a', '--adb', default=False, action='store_true')
+    parser.add_argument('-f', '--file', default=False)
     parser.add_argument('-D', '--dump', default=False, action='store_true')
     parser.add_argument('-s', '--simulator', default=False,
         action='store_true')
@@ -171,6 +181,10 @@ def main():
     elif result.adb:
         print 'Checking device via adb.'
         apps = B2G()
+    elif result.file:
+        print 'Checking file: {0}'.format(result.file)
+        apps = File()
+        apps.filename = result.file
     else:
         print 'Checking Firefox.'
         apps = Firefox()

@@ -33,6 +33,10 @@ yourself. To install this::
 
 Changes:
 
+* 0.2.10
+
+  Add in the ability to read a receipt from any arbitrary file.
+
 * 0.2.8
 
   Add in the dump command and test coverage for the certs and receipts part.
